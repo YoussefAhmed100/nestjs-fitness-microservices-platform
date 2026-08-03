@@ -1,13 +1,13 @@
 import { Injectable, Inject, ConflictException, UnauthorizedException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import * as databaseModule from './database/database.module';
 import { users } from './database/schema';
 import { TokenService } from './services/token.service';
 import { PATTERNS, UserRegisteredEvent } from '@app/common';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from '../../../libs/common/dto/register.dto';
+import { LoginDto } from '../../../libs/common/dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,8 +20,13 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const existing = await this.db.select().from(users).where(eq(users.email, dto.email));
     if (existing.length > 0) {
-      throw new ConflictException('Email already in use');
+     
+     throw new RpcException({
+        statusCode: 409,
+        message: 'Email already in use',
+      });
     }
+    // 
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const [newUser] = await this.db
@@ -38,21 +43,33 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  async login(dto:LoginDto) {
-    const [user] = await this.db.select().from(users).where(eq(users.email, dto.email));
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+async login(dto: LoginDto) {
+  const [user] = await this.db
+    .select()
+    .from(users)
+    .where(eq(users.email, dto.email));
 
-    const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
-
-    const tokens = await this.tokenService.generateTokenPair({
-      sub: user.id,
-      email: user.email,
+  if (!user)
+    throw new RpcException({
+      statusCode: 401,
+      message: 'Invalid credentials',
     });
 
-    const { password: _, ...userWithoutPassword } = user;
-    return { accessToken: tokens.accessToken, user: userWithoutPassword };
-  }
+  const isMatch = await bcrypt.compare(dto.password, user.password);
+  if (!isMatch)
+    throw new RpcException({
+      statusCode: 401,
+      message: 'Invalid credentials',
+    });
+
+  const tokens = await this.tokenService.generateTokenPair({
+    sub: user.id,
+    email: user.email,
+  });
+
+  const { password: _, ...userWithoutPassword } = user;
+  return { accessToken: tokens.accessToken, user: userWithoutPassword };
+}
 
   async refreshTokens(refreshToken: string) {
     const userId = await this.tokenService.rotateRefreshToken(refreshToken);
