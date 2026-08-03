@@ -1,65 +1,74 @@
 import { Injectable, Inject, ConflictException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import { ClientProxy } from '@nestjs/microservices';
 import { eq } from 'drizzle-orm';
+import * as bcrypt from 'bcrypt';
 import * as databaseModule from './database/database.module';
 import { users } from './database/schema';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres'; // placeholder type import guard
-import { ClientProxy } from '@nestjs/microservices';
-import { UserRegisteredEvent } from '@app/common/events/user-registered.event';
-import { PATTERNS } from '@app/common';
+import { TokenService } from './services/token.service';
+import { PATTERNS, UserRegisteredEvent } from '@app/common';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(databaseModule.DRIZZLE) private readonly db: databaseModule.DrizzleDB,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
     @Inject('NOTIFICATION_SERVICE') private readonly notificationClient: ClientProxy,
   ) {}
 
-  async register(email: string, password: string, name: string) {
-    const existing = await this.db.select().from(users).where(eq(users.email, email));
+  async register(dto: RegisterDto) {
+    const existing = await this.db.select().from(users).where(eq(users.email, dto.email));
     if (existing.length > 0) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException('Email already in use');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     const [newUser] = await this.db
       .insert(users)
-      .values({ email, password: hashedPassword, name })
+      .values({ email: dto.email, password: hashedPassword, name: dto.name })
       .returning();
 
-    const { password: _, ...userWithoutPassword } = newUser;
-        this.notificationClient.emit(
+    this.notificationClient.emit(
       PATTERNS.USER_REGISTERED,
       new UserRegisteredEvent(newUser.id, newUser.email, newUser.name),
     );
+
+    const { password: _, ...userWithoutPassword } = newUser;
     return userWithoutPassword;
   }
 
-  async login(email: string, password: string) {
-    const [user] = await this.db.select().from(users).where(eq(users.email, email));
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(dto:LoginDto) {
+    const [user] = await this.db.select().from(users).where(eq(users.email, dto.email));
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const tokens = await this.tokenService.generateTokenPair({
+      sub: user.id,
+      email: user.email,
+    });
 
     const { password: _, ...userWithoutPassword } = user;
-    return { accessToken, user: userWithoutPassword };
+    return { accessToken: tokens.accessToken, user: userWithoutPassword };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    const userId = await this.tokenService.rotateRefreshToken(refreshToken);
+
+    const [user] = await this.db.select().from(users).where(eq(users.id, userId));
+    if (!user) throw new UnauthorizedException('User not found');
+
+    return this.tokenService.generateTokenPair({ sub: user.id, email: user.email });
   }
 
   async validateToken(token: string) {
-    try {
-      return this.jwtService.verify(token);
-    } catch {
-      throw new UnauthorizedException('Invalid token');
-    }
+    return this.tokenService.verifyAccessToken(token);
+  }
+
+  async logout(userId: string) {
+    await this.tokenService.revokeAllUserTokens(userId);
+    return { success: true };
   }
 }

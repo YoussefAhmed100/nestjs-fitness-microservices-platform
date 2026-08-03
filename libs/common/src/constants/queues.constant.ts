@@ -10,6 +10,8 @@ export const PATTERNS = {
   AUTH_VALIDATE_TOKEN: 'auth.validate_token',
   AUTH_LOGIN: 'auth.login',
   AUTH_REGISTER: 'auth.register',
+  AUTH_REFRESH: 'auth.refresh',     
+  AUTH_LOGOUT: 'auth.logout', 
 
   // Product (sync)
   PRODUCT_FIND_BY_ID: 'product.find_by_id',
