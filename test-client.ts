@@ -15,9 +15,9 @@ async function testAuth() {
   console.log('--- Testing Register ---');
   const registerResult = await client
     .send('auth.register', {
-      email: 'test2@example.com',
+      email: 'test3@example.com',
       password: 'password123',
-      name: 'Test2 User',
+      name: 'Test3 User',
     })
     .toPromise();
   console.log(registerResult);
