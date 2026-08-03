@@ -15,6 +15,13 @@
       "when": 1785767086612,
       "tag": "0001_purple_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785789316982,
+      "tag": "0002_flimsy_bloodstorm",
+      "breakpoints": true
     }
   ]
 }
