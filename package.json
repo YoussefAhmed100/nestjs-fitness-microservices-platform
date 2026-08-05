@@ -17,7 +17,18 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/fitness-platform/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/fitness-platform/test/jest-e2e.json",
+    "db:generate:auth": "drizzle-kit generate --config=apps/auth/drizzle.config.ts",
+    "db:migrate:auth": "drizzle-kit migrate --config=apps/auth/drizzle.config.ts",
+    "db:studio:auth": "drizzle-kit studio --config=apps/auth/drizzle.config.ts",
+
+    "db:generate:product": "drizzle-kit generate --config=apps/product/drizzle.config.ts",
+    "db:migrate:product": "drizzle-kit migrate --config=apps/product/drizzle.config.ts",
+    "db:studio:product": "drizzle-kit studio --config=apps/product/drizzle.config.ts",
+
+    "db:generate:order": "drizzle-kit generate --config=apps/order/drizzle.config.ts",
+    "db:migrate:order": "drizzle-kit migrate --config=apps/order/drizzle.config.ts",
+    "db:studio:order": "drizzle-kit studio --config=apps/order/drizzle.config.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
