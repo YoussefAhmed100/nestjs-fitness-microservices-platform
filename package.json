@@ -21,11 +21,9 @@
     "db:generate:auth": "drizzle-kit generate --config=apps/auth/drizzle.config.ts",
     "db:migrate:auth": "drizzle-kit migrate --config=apps/auth/drizzle.config.ts",
     "db:studio:auth": "drizzle-kit studio --config=apps/auth/drizzle.config.ts",
-
     "db:generate:product": "drizzle-kit generate --config=apps/product/drizzle.config.ts",
     "db:migrate:product": "drizzle-kit migrate --config=apps/product/drizzle.config.ts",
     "db:studio:product": "drizzle-kit studio --config=apps/product/drizzle.config.ts",
-
     "db:generate:order": "drizzle-kit generate --config=apps/order/drizzle.config.ts",
     "db:migrate:order": "drizzle-kit migrate --config=apps/order/drizzle.config.ts",
     "db:studio:order": "drizzle-kit studio --config=apps/order/drizzle.config.ts"
@@ -43,6 +41,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "drizzle-orm": "^0.45.2",
+    "nodemailer": "^9.0.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -57,6 +56,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/supertest": "^7.0.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
