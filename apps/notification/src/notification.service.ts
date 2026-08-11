@@ -3,20 +3,24 @@ import type { UserRegisteredEvent } from '@app/common/events/user-registered.eve
 import { NotificationChannel } from './strategies/notification-strategy.interface';
 import { welcomeEmailTemplate } from './templates/welcome-email.template';
 import { NotificationFactory } from './factory/notification.factory';
+import { NotificationRetryService } from './notification-retry.service';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly factory: NotificationFactory) {}
+  constructor(private readonly factory: NotificationFactory,
+    private readonly retryService: NotificationRetryService
+  ) {}
 
-  async sendWelcomeEmail(data: UserRegisteredEvent): Promise<void> {
+async handleWelcomeEmailEvent(data: UserRegisteredEvent, channel: any, msg: any): Promise<void> {
+  try {
     const { subject, body } = welcomeEmailTemplate(data.name);
     const strategy = this.factory.getStrategy(NotificationChannel.EMAIL);
-    try {
-      await strategy.send({ to: data.email, subject, body });
-    } catch (err) {
-      this.logger.error(`Failed to send welcome email to ${data.email}`, err);
-    }
+    await strategy.send({ to: data.email, subject, body });
+    channel.ack(msg);
+  } catch (err) {
+    this.retryService.handleFailure(data.email, channel, msg);
   }
+}
 }

@@ -3,6 +3,13 @@ export const QUEUES = {
   PRODUCT: 'product_queue',
   ORDER: 'order_queue',
   NOTIFICATION: 'notification_queue',
+
+  NOTIFICATION_RETRY: 'notification_retry_queue',
+  NOTIFICATION_DLQ: 'notification_dlq',
+} as const;
+
+export const EXCHANGES = {
+  NOTIFICATION_RETRY: 'notification_retry_exchange',
 } as const;
 
 export const PATTERNS = {
@@ -10,8 +17,8 @@ export const PATTERNS = {
   AUTH_VALIDATE_TOKEN: 'auth.validate_token',
   AUTH_LOGIN: 'auth.login',
   AUTH_REGISTER: 'auth.register',
-  AUTH_REFRESH: 'auth.refresh',     
-  AUTH_LOGOUT: 'auth.logout', 
+  AUTH_REFRESH: 'auth.refresh',
+  AUTH_LOGOUT: 'auth.logout',
 
   // Product (sync)
   PRODUCT_FIND_BY_ID: 'product.find_by_id',
