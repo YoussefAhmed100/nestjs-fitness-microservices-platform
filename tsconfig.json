@@ -29,6 +29,7 @@
       "@app/common/*": [
         "libs/common/src/*"
       ]
-    }
+    },
+     "types": ["jest"]
   }
 }

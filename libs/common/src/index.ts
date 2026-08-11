@@ -7,3 +7,4 @@ export * from './events/user-registered.event';
 export * from './events/order-created.event';
 export * from './filters/rpc-exception.filter';
 export * from './filters/global-exception.filter';
+export * from './rabbitmq/setup-notification-topology';
