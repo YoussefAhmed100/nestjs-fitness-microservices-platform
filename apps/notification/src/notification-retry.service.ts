@@ -1,3 +1,4 @@
+import { QUEUES } from '@app/common';
 import { Injectable, Logger } from '@nestjs/common';
 
 const MAX_RETRIES = 3;
@@ -18,9 +19,14 @@ export class NotificationRetryService {
     }
   }
 
-  private getRetryCount(msg: any): number {
-    const xDeath = msg.properties?.headers?.['x-death'];
-    if (!xDeath || !Array.isArray(xDeath)) return 0;
-    return xDeath.reduce((sum: number, entry: any) => sum + (entry.count || 0), 0);
-  }
+private getRetryCount(msg: any): number {
+  const xDeath = msg.properties?.headers?.['x-death'];
+  if (!xDeath || !Array.isArray(xDeath)) return 0;
+
+  const rejectionEntry = xDeath.find(
+    (entry: any) => entry.queue === QUEUES.NOTIFICATION && entry.reason === 'rejected',
+  );
+
+  return rejectionEntry?.count || 0;
+}
 }
