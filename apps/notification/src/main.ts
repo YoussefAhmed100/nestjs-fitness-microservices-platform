@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { NotificationModule } from './notification.module';
-import { QUEUES, setupNotificationTopology } from '@app/common';
+import { EXCHANGES, QUEUES, setupNotificationTopology } from '@app/common';
 
 async function bootstrap() {
   const rabbitMqUrl = process.env.RABBITMQ_URL as string;
@@ -20,6 +20,8 @@ async function bootstrap() {
 
         queueOptions: {
           durable: true,
+          deadLetterExchange: EXCHANGES.NOTIFICATION_RETRY,
+          deadLetterRoutingKey: '',
         },
 
         noAck: false,
