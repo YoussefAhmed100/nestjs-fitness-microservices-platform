@@ -11,8 +11,8 @@ import * as databaseModule from './database/database.module';
 import { users } from './database/schema';
 import { TokenService } from './services/token.service';
 import { PATTERNS, UserRegisteredEvent } from '@app/common';
-import { RegisterDto } from '../../../libs/common/dto/register.dto';
-import { LoginDto } from '../../../libs/common/dto/login.dto';
+import { RegisterDto } from '../../../libs/common/src/dtos/auth/dto/register.dto';
+import { LoginDto } from '../../../libs/common/src/dtos/auth/dto/login.dto';
 
 @Injectable()
 export class AuthService {
