@@ -1,22 +1,130 @@
 version: '3.8'
 
 services:
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: rabbitmq
+
     ports:
-      - "5672:5672"    # AMQP protocol
-      - "15672:15672"  # Management UI
+      - "5672:5672"
+      - "15672:15672"
+
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
+
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: gateway
+
+    container_name: gateway
+
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: auth
+
+    container_name: auth
+    env_file:
+    - .env
+
+    environment:
+      NODE_ENV: production
+
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+  product:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: product
+
+    container_name: product
+
+    env_file:
+    - .env
+
+    environment:
+      NODE_ENV: production
+
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+  order:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: order
+
+    container_name: order
+    env_file:
+    - .env
+
+    environment:
+      NODE_ENV: production
+
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+  notification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: notification
+
+    container_name: notification
+    env_file:
+    - .env
+
+    environment:
+      NODE_ENV: production
+
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 
 volumes:
   rabbitmq_data:

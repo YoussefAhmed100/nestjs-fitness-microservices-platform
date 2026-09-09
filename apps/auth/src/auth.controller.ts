@@ -2,8 +2,8 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PATTERNS } from '@app/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from '../../../libs/common/dto/register.dto';
-import { LoginDto } from '../../../libs/common/dto/login.dto';
+import { RegisterDto } from '../../../libs/common/src/dtos/auth/dto/register.dto';
+import { LoginDto } from '../../../libs/common/src/dtos/auth/dto/login.dto';
 
 @Controller()
 export class AuthController {

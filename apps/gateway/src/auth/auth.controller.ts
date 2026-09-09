@@ -9,8 +9,8 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PATTERNS } from '@app/common';
-import { RegisterDto } from 'libs/common/dto/register.dto';
-import { LoginDto } from 'libs/common/dto/login.dto';
+import { RegisterDto } from '@app/common/dtos/auth/dto/register.dto';
+import { LoginDto } from '@app/common/dtos/auth/dto/login.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('auth')
