@@ -19,7 +19,7 @@ async create(dto: CreateProductDto) {
 
   if (!/^\d+(\.\d{1,2})?$/.test(dto.price.toString())) {
     throw new RpcException({
-      status: 400,
+      statusCode: 400,
       message: 'Price must have at most 2 decimal places',
     });
   }
@@ -29,7 +29,7 @@ async create(dto: CreateProductDto) {
     dto.lowStockThreshold >= dto.stock
   ) {
     throw new RpcException({
-      status: 400,
+      statusCode: 400,
       message: 'lowStockThreshold must be less than initial stock',
     });
   }
@@ -41,7 +41,7 @@ async create(dto: CreateProductDto) {
 
   if (existing) {
     throw new RpcException({
-      status: 409,
+      statusCode: 409,
       message: `Product with SKU "${normalizedSku}" already exists`,
     });
   }
@@ -70,7 +70,7 @@ async update(id: string, dto: Partial<CreateProductDto>) {
   if (dto.price !== undefined) {
     if (!/^\d+(\.\d{1,2})?$/.test(dto.price.toString())) {
       throw new RpcException({
-        status: 400,
+        statusCode: 400,
         message: 'Price must have at most 2 decimal places',
       });
     }
@@ -88,7 +88,7 @@ async update(id: string, dto: Partial<CreateProductDto>) {
 
     if (existing && existing.id !== id) {
       throw new RpcException({
-        status: 409,
+        statusCode: 409,
         message: `Product with SKU "${normalizedSku}" already exists`,
       });
     }
@@ -107,7 +107,7 @@ async update(id: string, dto: Partial<CreateProductDto>) {
       .where(eq(products.id, id));
 
     if (!current) {
-      throw new RpcException({ status: 404, message: 'Product not found' });
+      throw new RpcException({ statusCode: 404, message: 'Product not found' });
     }
 
     const finalStock = dto.stock ?? current.stock;
@@ -115,7 +115,7 @@ async update(id: string, dto: Partial<CreateProductDto>) {
 
     if (finalThreshold >= finalStock) {
       throw new RpcException({
-        status: 400,
+        statusCode: 400,
         message: 'lowStockThreshold must be less than stock',
       });
     }
@@ -128,7 +128,7 @@ async update(id: string, dto: Partial<CreateProductDto>) {
     .returning();
 
   if (!product) {
-    throw new RpcException({ status: 404, message: 'Product not found' });
+    throw new RpcException({ statusCode: 404, message: 'Product not found' });
   }
   return product;
 }
@@ -140,7 +140,7 @@ async remove(id: string) {
     .returning();
 
   if (!product) {
-    throw new RpcException({ status: 404, message: 'Product not found' });
+    throw new RpcException({ statusCode: 404, message: 'Product not found' });
   }
   return { deleted: true, id: product.id };
 }
@@ -152,7 +152,7 @@ async remove(id: string) {
       .where(eq(products.id, id));
 
     if (!product) {
-      throw new RpcException({ status: 404, message: 'Product not found' });
+      throw new RpcException({ statusCode: 404, message: 'Product not found' });
     }
     return product;
   }
@@ -164,7 +164,7 @@ async remove(id: string) {
       .where(eq(products.id, productId));
 
     if (!product) {
-      throw new RpcException({ status: 404, message: 'Product not found' });
+      throw new RpcException({ statusCode: 404, message: 'Product not found' });
     }
     return product;
   }
@@ -190,10 +190,10 @@ async remove(id: string) {
         .where(eq(products.id, productId));
 
       if (!existing) {
-        throw new RpcException({ status: 404, message: 'Product not found' });
+        throw new RpcException({ statusCode: 404, message: 'Product not found' });
       }
       throw new RpcException({
-        status: 409,
+        statusCode: 409,
         message: `Insufficient stock. Available: ${existing.stock}`,
       });
     }

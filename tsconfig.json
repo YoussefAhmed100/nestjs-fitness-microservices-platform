@@ -30,6 +30,6 @@
         "libs/common/src/*"
       ]
     },
-     "types": ["jest"]
+     "types": ["jest", "node"]
   }
 }

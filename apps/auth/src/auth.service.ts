@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { eq } from 'drizzle-orm';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as databaseModule from './database/database.module';
 import { users } from './database/schema';
 import { TokenService } from './services/token.service';
